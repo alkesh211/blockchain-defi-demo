@@ -55,7 +55,15 @@ contract TokenFarm {
     function issueTokens() public {
     	// Loop through all the people who have staked inside the stakers array, we are gone a issue them
     	for (uint i=0; i<stakers.length; i++) {
-    		
+    		// Find how many tokens they stake and issue them to same amount of token
+    		// MEans if they deposite 1 dai then they take 1 dapp token, deposite 100 dai and they get 100 dapp token
+    		address recipient = stakers[i];
+    		uint balance = stakingBalance[recipient];
+    		if(balance > 0) {    			
+    			dappToken.transfer(recipient, balance);
+    		}
+    		// Every person who stake inside the app fetch theri balance and send them the exact the same amount of the dai token / dapp token i should say
+
     	}
     }
 
