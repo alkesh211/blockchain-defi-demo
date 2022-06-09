@@ -6,6 +6,7 @@ import './DaiToken.sol';
 contract TokenFarm {
 	// All code comes here
 	string public name = "Dapp TokenFarm";
+	address public owner;
 	DappToken public dappToken;
 	DaiToken public daiToken;
 
@@ -18,6 +19,7 @@ contract TokenFarm {
 	constructor(DappToken _dappToken, DaiToken _daiToken) public {
 		dappToken = _dappToken;
 		daiToken = _daiToken;
+		owner = msg.sender; // person who deploy the contract
 	}
 
 	// 1. Stakes Tokens (Deposite)
@@ -26,6 +28,11 @@ contract TokenFarm {
 	// Transfer Dai tokens from the investor wallet to this smart contract
 	// Investor takes Dai token and they send them to Token Farm and Token Farm (Digital bank) can earn Dapp tokens
 	function stakeTokens(uint _amount) public {
+
+		// Require amount > 0
+		require(_amount > 0, 'amount can not be 0');
+		//require(true, 'amount can not be 0'), then function will run next otherwise not
+
 		// Transfer Mock Dai  tokens to this contract for staking
 		daiToken.transferFrom(msg.sender, address(this), _amount);
 		// DaiToken has transferFrom function, allows someone else move tokens for you, it allows the contract move the funds on the behalf of the investor
@@ -45,15 +52,19 @@ contract TokenFarm {
 
 		// Update staking status
 		isStaking[msg.sender] = true;
-		hasStaked[msg.sender] =  true;
+		hasStaked[msg.sender] = true;
 	}
 
 	// 2. Issuing Tokens (Earning Interest)
 	// Ideally, investor are going to deposite dai token into token farm and stake them and they are going to earn dapp token for doing that
     // Token farm now have dapp tokens and we create funciton to issue those to the investor
 
+    // To ristrict this function so the only owner can call this function
     function issueTokens() public {
+    	require(msg.sender == owner, "caller must be the owner");
+
     	// Loop through all the people who have staked inside the stakers array, we are gone a issue them
+    	// Issue tokens to all stakers
     	for (uint i=0; i<stakers.length; i++) {
     		// Find how many tokens they stake and issue them to same amount of token
     		// MEans if they deposite 1 dai then they take 1 dapp token, deposite 100 dai and they get 100 dapp token
@@ -70,4 +81,13 @@ contract TokenFarm {
 	// 3. Unstaking Tokens (Withdraw)
 	// Investor withdraw money
 	// 
+	function unstakeTokens() public {
+		// Fetch staking balance
+		uint balance = stakingBalance[msg.sender];
+
+		// Require amount > 0
+		require(balance > 0, "staking balance can not be zero");
+
+		// Transfer Mock Dai tokens to this contract for staking
+	}
 }
